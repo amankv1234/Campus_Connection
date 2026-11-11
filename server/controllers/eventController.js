@@ -1,0 +1,65 @@
+const Event = require('../models/Event');
+
+// @desc    Create an event
+// @route   POST /api/events
+// @access  Private
+const createEvent = async (req, res) => {
+  try {
+    const { title, description, date, location } = req.body;
+
+    const newEvent = await Event.create({
+      title,
+      description,
+      date,
+      location,
+      organizer: req.user.id,
+      attendees: [req.user.id] // Organizer automatically attends
+    });
+
+    res.status(201).json(newEvent);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Get all events
+// @route   GET /api/events
+// @access  Private
+const getEvents = async (req, res) => {
+  try {
+    const events = await Event.find().sort({ date: 1 });
+    res.status(200).json(events);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Register for event
+// @route   POST /api/events/:id/register
+// @access  Private
+const registerForEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    if (event.attendees.includes(req.user.id)) {
+      return res.status(400).json({ message: 'Already registered for this event' });
+    }
+
+    event.attendees.push(req.user.id);
+    await event.save();
+
+    res.status(200).json(event);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  createEvent,
+  getEvents,
+  registerForEvent
+};
