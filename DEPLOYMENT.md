@@ -50,9 +50,9 @@ Copy this URL – you will need it for the frontend.
 
 ### 3.2 Environment Variables
 Add a single variable:
-- `VITE_API_URL=<backend‑url-from‑Render>`
+- `API_URL=<backend‑url-from‑Render>`
   (e.g., `https://campus-connection-backend.onrender.com`).
-  Vite automatically injects variables prefixed with `VITE_` at build time.
+  Vite injects this at build time via `vite.config.js` — no `VITE_` prefix needed.
 
 ### 3.3 Deploy
 Click **Deploy**. Vercel will run:
@@ -81,7 +81,7 @@ Once deployment finishes you will get a preview URL (e.g., `https://campus-conne
 You can run the frontend locally against the Render backend by setting the environment variable:
 ```bash
 # In the client folder
-echo "VITE_API_URL=https://<render‑url>" > .env
+echo "API_URL=https://<render‑url>" > .env
 npm run dev
 ```
 The same `API_URL` constant (`client/src/config/api.js`) will be used.

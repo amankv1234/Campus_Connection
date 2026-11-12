@@ -8,4 +8,8 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  define: {
+    // Inject API_URL at build time — set this env var in Vercel (no VITE_ prefix needed)
+    '__API_URL__': JSON.stringify(process.env.API_URL || 'http://localhost:5000')
+  }
 })
