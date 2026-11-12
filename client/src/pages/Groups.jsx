@@ -47,13 +47,27 @@ const Groups = () => {
       socket.current.emit('register_user', user._id);
     }
     
+    if (activeGroup) {
+      socket.current.emit('join_group_chat', activeGroup._id);
+    }
+
     socket.current.on('receive_message', (message) => {
-      if (activeGroup && message.group === activeGroup._id) {
-        setGroupMessages(prev => [...prev, message]);
+      const msgGroupId = message.group?._id || message.group;
+      if (activeGroup && msgGroupId === activeGroup._id) {
+        setGroupMessages(prev => {
+          // Avoid duplicate messages if added on send
+          if (prev.some(m => m._id === message._id)) return prev;
+          return [...prev, message];
+        });
       }
     });
 
-    return () => socket.current.disconnect();
+    return () => {
+      if (activeGroup && socket.current) {
+        socket.current.emit('leave_group_chat', activeGroup._id);
+      }
+      socket.current.disconnect();
+    };
   }, [user, activeGroup]);
 
   // Fetch Group Data when activeGroup changes
@@ -128,12 +142,19 @@ const Groups = () => {
       }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      setGroupMessages([...groupMessages, res.data]);
+      setGroupMessages(prev => {
+        if (prev.some(m => m._id === res.data._id)) return prev;
+        return [...prev, res.data];
+      });
       setNewGroupMessage('');
 
-      // Emit to all group members via socket (assuming basic global broadcast or room broadcast in a real app)
-      // Since our simple socket doesn't handle rooms, we won't emit it here to avoid sending to everyone,
-      // or we can implement real rooms. For this fix, it updates locally.
+      // Emit to all group members via socket room
+      if (socket.current) {
+        socket.current.emit('send_message', {
+          groupId: activeGroup._id,
+          message: res.data
+        });
+      }
     } catch (error) {
       console.error('Failed to send message', error);
     }
@@ -141,24 +162,32 @@ const Groups = () => {
 
   const handleJoinLeave = async (groupId, action) => {
     try {
-      await axios.put(`${API_URL}/api/groups/${groupId}/${action}`, {}, {
+      const updateRes = await axios.put(`${API_URL}/api/groups/${groupId}/${action}`, {}, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
-      // Refresh groups
+      // Refresh groups list
       const res = await axios.get(`${API_URL}/api/groups`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setGroups(res.data);
       if (activeGroup && activeGroup._id === groupId) {
-        setActiveGroup(res.data.find(g => g._id === groupId));
+        setActiveGroup(updateRes.data || res.data.find(g => g._id === groupId));
       }
     } catch (error) {
       console.error(`Failed to ${action} group`, error);
     }
   };
 
+  const isUserMember = (group) => {
+    if (!group || !group.members || !user) return false;
+    return group.members.some(m => {
+      const memberId = typeof m === 'object' ? (m._id || m.id) : m;
+      return memberId?.toString() === user._id?.toString();
+    });
+  };
+
   if (activeGroup) {
-    const isMember = activeGroup.members.some(m => m._id === user._id);
+    const isMember = isUserMember(activeGroup);
     return (
       <div className="flex-grow max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
         <button onClick={() => setActiveGroup(null)} className="mb-4 flex items-center text-gray-600 hover:text-primary-600 font-medium">
@@ -296,7 +325,7 @@ const Groups = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {groups.map(group => {
-          const isMember = group.members.some(m => m._id === user._id);
+          const isMember = isUserMember(group);
           return (
             <div key={group._id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col">
               <div className="flex items-center space-x-4 mb-4">

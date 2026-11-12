@@ -32,7 +32,7 @@ const sendMessage = async (req, res) => {
         req.user.id,
         'message',
         `${req.user.name} sent you a message`,
-        `/chat`
+        `/chat?user=${req.user.id}`
       );
     }
 

@@ -37,7 +37,7 @@ const getGroups = async (req, res) => {
 
 // @desc    Join a group
 // @route   PUT /api/groups/:id/join
-// @ access Private
+// @access Private
 const joinGroup = async (req, res) => {
   try {
     const group = await Group.findById(req.params.id);
@@ -46,14 +46,16 @@ const joinGroup = async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    if (group.members.includes(req.user.id)) {
+    const isMember = group.members.some(m => m.toString() === req.user.id.toString());
+    if (isMember) {
       return res.status(400).json({ message: 'Already a member' });
     }
 
     group.members.push(req.user.id);
     await group.save();
 
-    res.status(200).json(group);
+    const updatedGroup = await Group.findById(req.params.id).populate('members', 'name profilePic');
+    res.status(200).json(updatedGroup);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -61,7 +63,7 @@ const joinGroup = async (req, res) => {
 
 // @desc    Leave a group
 // @route   PUT /api/groups/:id/leave
-// @ access Private
+// @access Private
 const leaveGroup = async (req, res) => {
   try {
     const group = await Group.findById(req.params.id);
@@ -70,13 +72,11 @@ const leaveGroup = async (req, res) => {
       return res.status(404).json({ message: 'Group not found' });
     }
 
-    group.members = group.members.filter(member => member.toString() !== req.user.id);
-    
-    // If the creator leaves or it's empty, we might handle assigning a new admin or deleting, 
-    // but simply removing them here for now.
+    group.members = group.members.filter(member => member.toString() !== req.user.id.toString());
     await group.save();
 
-    res.status(200).json(group);
+    const updatedGroup = await Group.findById(req.params.id).populate('members', 'name profilePic');
+    res.status(200).json(updatedGroup);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

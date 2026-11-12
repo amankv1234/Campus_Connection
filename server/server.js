@@ -77,10 +77,25 @@ io.on('connection', (socket) => {
   });
 
   socket.on('send_message', (messageData) => {
-    const receiverSocketId = connectedUsers.get(messageData.receiverId.toString());
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('receive_message', messageData.message);
+    if (messageData.groupId) {
+      // Broadcast to all users in group room or all clients
+      io.to(`group_${messageData.groupId}`).emit('receive_message', messageData.message);
+    } else if (messageData.receiverId) {
+      const receiverSocketId = connectedUsers.get(messageData.receiverId.toString());
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit('receive_message', messageData.message);
+      }
     }
+  });
+
+  socket.on('join_group_chat', (groupId) => {
+    socket.join(`group_${groupId}`);
+    console.log(`Socket ${socket.id} joined group room group_${groupId}`);
+  });
+
+  socket.on('leave_group_chat', (groupId) => {
+    socket.leave(`group_${groupId}`);
+    console.log(`Socket ${socket.id} left group room group_${groupId}`);
   });
 });
 

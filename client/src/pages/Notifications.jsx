@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { FiBell, FiCheck, FiInbox } from 'react-icons/fi';
+import { FiBell, FiCheck, FiInbox, FiMessageSquare } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import { API_URL } from '../config/api';
 
 const Notifications = () => {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +39,26 @@ const Notifications = () => {
       setNotifications(notifications.map(n => n._id === id ? { ...n, read: true } : n));
     } catch (error) {
       console.error('Failed to mark as read', error);
+    }
+  };
+
+  const handleNotificationClick = async (notification) => {
+    if (!notification.read) {
+      await markAsRead(notification._id);
+    }
+    
+    // If it's a message or link exists
+    if (notification.type === 'message') {
+      const senderId = notification.sender?._id || notification.sender;
+      if (senderId) {
+        navigate(`/chat?user=${senderId}`);
+      } else if (notification.link) {
+        navigate(notification.link);
+      } else {
+        navigate('/chat');
+      }
+    } else if (notification.link) {
+      navigate(notification.link);
     }
   };
 
@@ -80,8 +102,8 @@ const Notifications = () => {
             {notifications.map((n) => (
               <div 
                 key={n._id} 
-                className={`p-4 flex items-start space-x-4 transition hover:bg-gray-50 ${!n.read ? 'bg-primary-50' : ''}`}
-                onClick={() => !n.read && markAsRead(n._id)}
+                className={`p-4 flex items-start space-x-4 transition hover:bg-gray-50 cursor-pointer ${!n.read ? 'bg-primary-50' : ''}`}
+                onClick={() => handleNotificationClick(n)}
               >
                 <img 
                   src={n.sender?.profilePic || 'https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg'} 
