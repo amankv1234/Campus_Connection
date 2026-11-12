@@ -4,6 +4,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { AuthContext } from '../context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
+import { API_URL } from '../config/api';
 
 const Chat = () => {
   const { user } = useContext(AuthContext);
@@ -25,7 +26,7 @@ const Chat = () => {
 
   // Initialize Socket Connection
   useEffect(() => {
-    socket.current = io('http://localhost:5000');
+    socket.current = io(API_URL);
     
     if (user) {
       socket.current.emit('register_user', user._id);
@@ -48,7 +49,7 @@ const Chat = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/users', {
+        const res = await axios.get(`${API_URL}/api/users`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         const others = res.data.filter(u => u._id !== user._id);
@@ -70,7 +71,7 @@ const Chat = () => {
     const fetchMessages = async () => {
       if (!activeChat) return;
       try {
-        const res = await axios.get(`http://localhost:5000/api/messages/${activeChat._id}`, {
+        const res = await axios.get(`${API_URL}/api/messages/${activeChat._id}`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setMessages(res.data);
@@ -92,7 +93,7 @@ const Chat = () => {
     if (!newMessage.trim() || !activeChat) return;
 
     try {
-      const res = await axios.post('http://localhost:5000/api/messages', {
+      const res = await axios.post(`${API_URL}/api/messages`, {
         receiverId: activeChat._id,
         content: newMessage
       }, {

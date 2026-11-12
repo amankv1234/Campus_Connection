@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { FiUsers, FiFileText, FiBriefcase, FiCalendar, FiTrash2 } from 'react-icons/fi';
+import { API_URL } from '../config/api';
 
 const Admin = () => {
   const { user } = useContext(AuthContext);
@@ -13,17 +14,17 @@ const Admin = () => {
 
   const fetchData = async () => {
     try {
-      const statsRes = await axios.get('http://localhost:5000/api/admin/stats', {
+      const statsRes = await axios.get(`${API_URL}/api/admin/stats`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setStats(statsRes.data);
 
-      const usersRes = await axios.get('http://localhost:5000/api/admin/users', {
+      const usersRes = await axios.get(`${API_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setUsers(usersRes.data);
 
-      const postsRes = await axios.get('http://localhost:5000/api/admin/posts', {
+      const postsRes = await axios.get(`${API_URL}/api/admin/posts`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setPosts(postsRes.data);
@@ -41,7 +42,7 @@ const Admin = () => {
   const handleDeleteUser = async (id) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/admin/users/${id}`, {
+        await axios.delete(`${API_URL}/api/admin/users/${id}`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setUsers(users.filter(u => u._id !== id));
@@ -54,7 +55,7 @@ const Admin = () => {
   const handleDeletePost = async (id) => {
     if (window.confirm('Are you sure you want to delete this post?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/admin/posts/${id}`, {
+        await axios.delete(`${API_URL}/api/admin/posts/${id}`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setPosts(posts.filter(p => p._id !== id));

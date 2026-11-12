@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import PostCard from '../components/PostCard';
+import { API_URL } from '../config/api';
 
 const Home = () => {
   const { user } = useContext(AuthContext);
@@ -20,7 +21,7 @@ const Home = () => {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/posts', {
+      const res = await axios.get(`${API_URL}/api/posts`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setPosts(res.data);
@@ -32,19 +33,19 @@ const Home = () => {
   const fetchSidebarData = async () => {
     try {
       // Fetch Opportunities
-      const oppRes = await axios.get('http://localhost:5000/api/opportunities', {
+      const oppRes = await axios.get(`${API_URL}/api/opportunities`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setRecentOpportunities(oppRes.data.slice(0, 3)); // Top 3
 
       // Fetch Events
-      const evtRes = await axios.get('http://localhost:5000/api/events', {
+      const evtRes = await axios.get(`${API_URL}/api/events`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setRecentEvents(evtRes.data.slice(0, 3)); 
 
       // Fetch Suggested Users
-      const usersRes = await axios.get('http://localhost:5000/api/users', {
+      const usersRes = await axios.get(`${API_URL}/api/users`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       const suggested = usersRes.data
@@ -83,7 +84,7 @@ const Home = () => {
         formData.append('image', image);
       }
 
-      const res = await axios.post('http://localhost:5000/api/posts', formData, {
+      const res = await axios.post(`${API_URL}/api/posts`, formData, {
         headers: { 
           Authorization: `Bearer ${user.token}`,
           'Content-Type': 'multipart/form-data'

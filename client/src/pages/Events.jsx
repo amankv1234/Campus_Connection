@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { FiCalendar, FiMapPin, FiUsers, FiPlus, FiX } from 'react-icons/fi';
+import { API_URL } from '../config/api';
 
 const Events = () => {
   const { user } = useContext(AuthContext);
@@ -17,7 +18,7 @@ const Events = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/events', {
+        const res = await axios.get(`${API_URL}/api/events`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setEvents(res.data);
@@ -30,7 +31,7 @@ const Events = () => {
 
   const handleRegister = async (eventId) => {
     try {
-      await axios.post(`http://localhost:5000/api/events/${eventId}/register`, {}, {
+      await axios.post(`${API_URL}/api/events/${eventId}/register`, {}, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       fetchEvents();
@@ -41,7 +42,7 @@ const Events = () => {
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/events', {
+      const res = await axios.get(`${API_URL}/api/events`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setEvents(res.data);
@@ -53,7 +54,7 @@ const Events = () => {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/events', formData, {
+      await axios.post(`${API_URL}/api/events`, formData, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setShowModal(false);

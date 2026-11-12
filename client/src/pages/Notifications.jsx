@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { FiBell, FiCheck, FiInbox } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
+import { API_URL } from '../config/api';
 
 const Notifications = () => {
   const { user } = useContext(AuthContext);
@@ -11,7 +12,7 @@ const Notifications = () => {
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/notifications', {
+      const res = await axios.get(`${API_URL}/api/notifications`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setNotifications(res.data);
@@ -30,7 +31,7 @@ const Notifications = () => {
 
   const markAsRead = async (id) => {
     try {
-      await axios.put(`http://localhost:5000/api/notifications/${id}/read`, {}, {
+      await axios.put(`${API_URL}/api/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setNotifications(notifications.map(n => n._id === id ? { ...n, read: true } : n));
@@ -44,7 +45,7 @@ const Notifications = () => {
       // Logic for marking all as read (if endpoint exists, otherwise loop)
       const unread = notifications.filter(n => !n.read);
       await Promise.all(unread.map(n => 
-        axios.put(`http://localhost:5000/api/notifications/${n._id}/read`, {}, {
+        axios.put(`${API_URL}/api/notifications/${n._id}/read`, {}, {
           headers: { Authorization: `Bearer ${user.token}` }
         })
       ));

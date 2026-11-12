@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
 const Sidebar = () => {
   const { user } = useContext(AuthContext);
@@ -11,7 +12,7 @@ const Sidebar = () => {
     if (user) {
       const fetchOpps = async () => {
         try {
-          const res = await axios.get('http://localhost:5000/api/opportunities', {
+          const res = await axios.get(`${API_URL}/api/opportunities`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
           setTrendingOpps(res.data.slice(0, 2));

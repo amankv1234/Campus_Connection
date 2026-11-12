@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { FiBriefcase, FiExternalLink, FiClock } from 'react-icons/fi';
+import { API_URL } from '../config/api';
 
 const Opportunities = () => {
   const { user } = useContext(AuthContext);
@@ -24,7 +25,7 @@ const Opportunities = () => {
     const fetchOpps = async () => {
       try {
         const query = filterType !== 'All' ? `?type=${filterType}` : '';
-        const res = await axios.get(`http://localhost:5000/api/opportunities${query}`, {
+        const res = await axios.get(`${API_URL}/api/opportunities${query}`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setOpportunities(res.data);
@@ -47,7 +48,7 @@ const Opportunities = () => {
       Object.keys(formData).forEach(key => data.append(key, formData[key]));
       if (image) data.append('image', image);
 
-      await axios.post('http://localhost:5000/api/opportunities', data, {
+      await axios.post(`${API_URL}/api/opportunities`, data, {
         headers: { 
           Authorization: `Bearer ${user.token}`,
           'Content-Type': 'multipart/form-data'
@@ -67,7 +68,7 @@ const Opportunities = () => {
 
   const handleBookmark = async (id) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/opportunities/${id}/bookmark`, {}, {
+      const res = await axios.put(`${API_URL}/api/opportunities/${id}/bookmark`, {}, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setOpportunities(opportunities.map(opp => 

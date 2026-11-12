@@ -1,6 +1,7 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { API_URL } from '../config/api';
 
 const AIAssistant = () => {
   const { user } = useContext(AuthContext);
@@ -29,7 +30,7 @@ const AIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/ai/ask', { 
+      const res = await axios.post(`${API_URL}/api/ai/ask`, { 
         question: userMessage.content,
         history: messages 
       }, {

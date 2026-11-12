@@ -5,6 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 import { FiUsers, FiPlus, FiArrowLeft, FiMessageSquare } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import PostCard from '../components/PostCard';
+import { API_URL } from '../config/api';
 
 const Groups = () => {
   const { user } = useContext(AuthContext);
@@ -28,7 +29,7 @@ const Groups = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/groups', {
+        const res = await axios.get(`${API_URL}/api/groups`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         setGroups(res.data);
@@ -41,7 +42,7 @@ const Groups = () => {
 
   // Initialize Socket for Group Chat
   useEffect(() => {
-    socket.current = io('http://localhost:5000');
+    socket.current = io(API_URL);
     if (user) {
       socket.current.emit('register_user', user._id);
     }
@@ -62,12 +63,12 @@ const Groups = () => {
     const fetchGroupData = async () => {
       try {
         if (activeTab === 'posts') {
-          const res = await axios.get(`http://localhost:5000/api/posts/group/${activeGroup._id}`, {
+          const res = await axios.get(`${API_URL}/api/posts/group/${activeGroup._id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
           setGroupPosts(res.data);
         } else if (activeTab === 'chat') {
-          const res = await axios.get(`http://localhost:5000/api/messages/group/${activeGroup._id}`, {
+          const res = await axios.get(`${API_URL}/api/messages/group/${activeGroup._id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
           setGroupMessages(res.data);
@@ -89,7 +90,7 @@ const Groups = () => {
     e.preventDefault();
     if (!createData.name || !createData.description) return;
     try {
-      const res = await axios.post('http://localhost:5000/api/groups', createData, {
+      const res = await axios.post(`${API_URL}/api/groups`, createData, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setGroups([...groups, res.data]);
@@ -104,7 +105,7 @@ const Groups = () => {
     e.preventDefault();
     if (!newPostContent.trim()) return;
     try {
-      const res = await axios.post('http://localhost:5000/api/posts', {
+      const res = await axios.post(`${API_URL}/api/posts`, {
         content: newPostContent,
         group: activeGroup._id
       }, {
@@ -121,7 +122,7 @@ const Groups = () => {
     e.preventDefault();
     if (!newGroupMessage.trim()) return;
     try {
-      const res = await axios.post('http://localhost:5000/api/messages', {
+      const res = await axios.post(`${API_URL}/api/messages`, {
         groupId: activeGroup._id,
         content: newGroupMessage
       }, {
@@ -140,11 +141,11 @@ const Groups = () => {
 
   const handleJoinLeave = async (groupId, action) => {
     try {
-      await axios.put(`http://localhost:5000/api/groups/${groupId}/${action}`, {}, {
+      await axios.put(`${API_URL}/api/groups/${groupId}/${action}`, {}, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       // Refresh groups
-      const res = await axios.get('http://localhost:5000/api/groups', {
+      const res = await axios.get(`${API_URL}/api/groups`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setGroups(res.data);

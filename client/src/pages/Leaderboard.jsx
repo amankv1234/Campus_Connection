@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { API_URL } from '../config/api';
 
 const Leaderboard = () => {
   const { user } = useContext(AuthContext);
@@ -9,7 +10,7 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaders = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/users', {
+        const res = await axios.get(`${API_URL}/api/users`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         // Sort by points descending and take top 10

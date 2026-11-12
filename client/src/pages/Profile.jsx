@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { FiEdit2, FiGithub, FiLinkedin, FiFileText } from 'react-icons/fi';
+import { API_URL } from '../config/api';
 
 const Profile = () => {
   const { user, setUser } = useContext(AuthContext);
@@ -36,7 +37,7 @@ const Profile = () => {
     
     setIsResumeUploading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/users/resume', formDataToUpload, {
+      const res = await axios.post(`${API_URL}/api/users/resume`, formDataToUpload, {
         headers: { 
           Authorization: `Bearer ${user.token}`,
           'Content-Type': 'multipart/form-data'
@@ -60,7 +61,7 @@ const Profile = () => {
     
     setIsUploading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/users/profile-pic', formDataToUpload, {
+      const res = await axios.post(`${API_URL}/api/users/profile-pic`, formDataToUpload, {
         headers: { 
           Authorization: `Bearer ${user.token}`,
           'Content-Type': 'multipart/form-data'
@@ -98,7 +99,7 @@ const Profile = () => {
     try {
       const skillsArray = formData.skills.split(',').map(s => s.trim()).filter(s => s);
       const interestsArray = formData.interests.split(',').map(s => s.trim()).filter(s => s);
-      const res = await axios.put('http://localhost:5000/api/users/profile', {
+      const res = await axios.put(`${API_URL}/api/users/profile`, {
         ...formData,
         skills: skillsArray,
         interests: interestsArray

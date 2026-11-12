@@ -3,6 +3,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { FiSearch, FiMessageSquare } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
 const Discovery = () => {
   const { user } = useContext(AuthContext);
@@ -18,14 +19,14 @@ const Discovery = () => {
   const fetchUsers = async () => {
     try {
       const query = new URLSearchParams(searchParams).toString();
-      const res = await axios.get(`http://localhost:5000/api/users?${query}`, {
+      const res = await axios.get(`${API_URL}/api/users?${query}`, {
          headers: { Authorization: `Bearer ${user.token}` }
       });
       // Filter out current user
       setUsers(res.data.filter(u => u._id !== user._id));
       
       // Also fetch our own profile to know active connections
-      const meRes = await axios.get(`http://localhost:5000/api/users/${user._id}`, {
+      const meRes = await axios.get(`${API_URL}/api/users/${user._id}`, {
          headers: { Authorization: `Bearer ${user.token}` }
       });
       if (meRes.data.connections) {
@@ -43,7 +44,7 @@ const Discovery = () => {
   const handleConnect = async (targetUserId, isConnected) => {
     try {
       const endpoint = isConnected ? 'disconnect' : 'connect';
-      const res = await axios.post(`http://localhost:5000/api/users/${endpoint}/${targetUserId}`, {}, {
+      const res = await axios.post(`${API_URL}/api/users/${endpoint}/${targetUserId}`, {}, {
          headers: { Authorization: `Bearer ${user.token}` }
       });
       setConnections(res.data);

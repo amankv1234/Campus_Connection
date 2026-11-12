@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { FiMessageSquare, FiHome, FiUsers, FiBriefcase, FiCalendar, FiAward, FiCpu, FiLogOut, FiBell, FiMoon, FiSun } from 'react-icons/fi';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -30,7 +31,7 @@ const Navbar = () => {
     if (user) {
       const fetchUnread = async () => {
         try {
-          const res = await axios.get('http://localhost:5000/api/notifications', {
+          const res = await axios.get(`${API_URL}/api/notifications`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
           setUnreadCount(res.data.filter(n => !n.read).length);
