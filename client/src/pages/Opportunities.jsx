@@ -21,18 +21,19 @@ const Opportunities = () => {
   });
   const [image, setImage] = useState(null);
 
+  const fetchOpps = async () => {
+    try {
+      const query = filterType !== 'All' ? `?type=${filterType}` : '';
+      const res = await axios.get(`${API_URL}/api/opportunities${query}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      setOpportunities(res.data);
+    } catch (error) {
+      console.error('Failed to fetch opportunities', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchOpps = async () => {
-      try {
-        const query = filterType !== 'All' ? `?type=${filterType}` : '';
-        const res = await axios.get(`${API_URL}/api/opportunities${query}`, {
-          headers: { Authorization: `Bearer ${user.token}` }
-        });
-        setOpportunities(res.data);
-      } catch (error) {
-        console.error('Failed to fetch opportunities', error);
-      }
-    };
     fetchOpps();
   }, [user, filterType]);
 
