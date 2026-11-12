@@ -13,21 +13,101 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 font-sans antialiased transition-colors duration-300;
+    @apply bg-gray-50 text-gray-900 font-sans antialiased transition-colors duration-200;
   }
-  .dark body {
-    @apply bg-gray-900 text-gray-100;
-  }
-  .dark .bg-white {
-    @apply bg-gray-800 border-gray-700;
-  }
-  .dark .text-gray-900 {
-    @apply text-white;
-  }
-  .dark .text-gray-600, .dark .text-gray-500 {
-    @apply text-gray-400;
-  }
-  .dark .border-gray-200, .dark .border-gray-100 {
-    @apply border-gray-700;
-  }
+}
+
+/* Comprehensive Dark Mode Theme */
+.dark body {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Backgrounds in Dark Mode */
+.dark .bg-gray-50,
+.dark [class*="bg-gray-50"] {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-white,
+.dark [class*="bg-white"] {
+  background-color: #1e293b !important;
+  color: #f1f5f9;
+}
+
+.dark .bg-gray-100,
+.dark [class*="bg-gray-100"] {
+  background-color: #334155 !important;
+}
+
+.dark .bg-primary-50 {
+  background-color: #1e3a8a33 !important;
+}
+
+.dark .bg-blue-100 {
+  background-color: #1e3a8a4d !important;
+}
+
+/* Borders in Dark Mode */
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border {
+  border-color: #334155 !important;
+}
+
+.dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #334155 !important;
+}
+
+/* Texts in Dark Mode */
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: #f8fafc !important;
+}
+
+.dark .text-gray-700,
+.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-500,
+.dark .text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+/* Inputs, Textareas and Selects in Dark Mode */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+.dark textarea,
+.dark select {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Hover States in Dark Mode */
+.dark .hover\:bg-gray-50:hover {
+  background-color: #334155 !important;
+}
+
+.dark .hover\:bg-gray-100:hover {
+  background-color: #475569 !important;
+}
+
+/* Modals & Overlays */
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4) !important;
 }

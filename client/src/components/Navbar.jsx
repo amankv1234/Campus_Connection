@@ -108,8 +108,12 @@ const Navbar = () => {
                       alt="Profile" 
                     />
                   </Link>
-                  <button onClick={() => setIsDark(!isDark)} className="text-gray-500 hover:text-primary-600 transition">
-                    {isDark ? <FiSun className="h-6 w-6" /> : <FiMoon className="h-6 w-6" />}
+                  <button 
+                    onClick={() => setIsDark(!isDark)} 
+                    className="p-1.5 rounded-full text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                    title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                  >
+                    {isDark ? <FiSun className="h-5 w-5 text-yellow-400" /> : <FiMoon className="h-5 w-5" />}
                   </button>
                   <button onClick={handleLogout} className="text-gray-500 hover:text-red-500">
                     <FiLogOut className="h-6 w-6" />
@@ -118,6 +122,13 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                <button 
+                  onClick={() => setIsDark(!isDark)} 
+                  className="p-1.5 rounded-full text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition mr-2"
+                  title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                >
+                  {isDark ? <FiSun className="h-5 w-5 text-yellow-400" /> : <FiMoon className="h-5 w-5" />}
+                </button>
                 <Link to="/login" className="text-primary-600 font-medium hover:text-primary-700">Login</Link>
                 <Link to="/register" className="bg-primary-600 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-700 transition">Sign Up</Link>
               </>
