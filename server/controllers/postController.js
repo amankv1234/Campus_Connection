@@ -2,6 +2,7 @@ const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const User = require('../models/User');
 const { createNotification } = require('./notificationController');
+const { updateUserPoints } = require('../services/leaderboardService');
 
 // @desc    Create a post
 // @route   POST /api/posts
@@ -23,8 +24,9 @@ const createPost = async (req, res) => {
       group: req.body.group || null
     });
 
-    // Reward points
+    // Reward points in DB and Redis Sorted Set
     await User.findByIdAndUpdate(req.user.id, { $inc: { points: 5 } });
+    await updateUserPoints(req.user.id, 5);
 
     const populatedPost = await newPost.populate('user', 'name profilePic');
     res.status(201).json(populatedPost);

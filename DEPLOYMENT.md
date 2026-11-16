@@ -30,6 +30,7 @@ Add the following in the *Environment* section:
 - `PORT=5000` (Render overrides this automatically, but setting a default keeps local runs consistent.)
 - `MONGO_URI=<your‑mongo‑connection‑string>`
 - `JWT_SECRET=<your‑jwt‑secret>`
+- `REDIS_URL=<your‑redis‑connection‑url>` *(Optional - Upstash Redis or Render Redis for ultra-fast Leaderboard, Caching, Rate-Limiting & Online Status. If omitted, app smoothly runs on MongoDB fallback)*
 - Any other custom vars referenced in `server/.env.example`.
 
 ### 2.3 Deploy

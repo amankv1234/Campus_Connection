@@ -1,4 +1,5 @@
 const Event = require('../models/Event');
+const { clearCacheByPattern } = require('../middleware/cacheMiddleware');
 
 // @desc    Create an event
 // @route   POST /api/events
@@ -15,6 +16,9 @@ const createEvent = async (req, res) => {
       organizer: req.user.id,
       attendees: [req.user.id] // Organizer automatically attends
     });
+
+    // Invalidate Redis Cache for events
+    await clearCacheByPattern('events:*');
 
     res.status(201).json(newEvent);
   } catch (error) {

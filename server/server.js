@@ -1,12 +1,14 @@
+const dotenv = require('dotenv');
+
+// Load environment variables first before importing modules that need process.env
+dotenv.config();
+
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const { Server } = require('socket.io');
 const connectDB = require('./config/db');
-
-// Load environment variables
-dotenv.config();
+const { redis, isConnected } = require('./config/redis');
 
 // Connect to database
 connectDB();
@@ -53,7 +55,15 @@ app.get('/', (req, res) => {
 });
 
 // Online Users Route
-app.get('/api/users/online', (req, res) => {
+app.get('/api/users/online', async (req, res) => {
+  if (isConnected()) {
+    try {
+      const onlineIds = await redis.smembers('online_users');
+      return res.json(onlineIds);
+    } catch (err) {
+      console.warn('[Redis Online Users] Error:', err.message);
+    }
+  }
   res.json(Array.from(connectedUsers.keys()));
 });
 
@@ -61,16 +71,24 @@ app.get('/api/users/online', (req, res) => {
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
 
-  socket.on('register_user', (userId) => {
+  socket.on('register_user', async (userId) => {
     connectedUsers.set(userId, socket.id);
     console.log(`User ${userId} registered to socket ${socket.id}`);
+
+    if (isConnected() && userId) {
+      redis.sadd('online_users', userId.toString()).catch(() => { });
+    }
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     console.log(`User disconnected: ${socket.id}`);
     for (const [userId, socketId] of connectedUsers.entries()) {
       if (socketId === socket.id) {
         connectedUsers.delete(userId);
+
+        if (isConnected() && userId) {
+          redis.srem('online_users', userId.toString()).catch(() => { });
+        }
         break;
       }
     }

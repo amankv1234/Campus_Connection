@@ -1,5 +1,19 @@
 const User = require('../models/User');
 const { createNotification } = require('./notificationController');
+const { getTopLeaders } = require('../services/leaderboardService');
+
+// @desc    Get top users for leaderboard (Redis ZSET powered)
+// @route   GET /api/users/leaderboard
+// @access  Private
+const getLeaderboard = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const leaders = await getTopLeaders(limit);
+    res.status(200).json(leaders);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 // @desc    Get all users (Discovery)
 // @route   GET /api/users
@@ -227,5 +241,6 @@ module.exports = {
   uploadProfilePic,
   uploadResume,
   connectUser,
-  disconnectUser
+  disconnectUser,
+  getLeaderboard
 };

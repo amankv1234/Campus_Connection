@@ -10,12 +10,10 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaders = async () => {
       try {
-        const res = await axios.get(`${API_URL}/api/users`, {
+        const res = await axios.get(`${API_URL}/api/users/leaderboard?limit=10`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
-        // Sort by points descending and take top 10
-        const sorted = res.data.sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 10);
-        setLeaders(sorted);
+        setLeaders(res.data);
       } catch (error) {
         console.error('Failed to fetch leaderboard', error);
       }

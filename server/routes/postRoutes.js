@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { createPost, getPosts, getGroupPosts, updatePost, likePost, deletePost } = require('../controllers/postController');
 const { protect } = require('../middleware/authMiddleware');
+const { postLimiter } = require('../middleware/rateLimiter');
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -10,7 +11,7 @@ const upload = multer({
 });
 
 router.route('/')
-  .post(protect, upload.single('image'), createPost)
+  .post(protect, postLimiter, upload.single('image'), createPost)
   .get(protect, getPosts);
 
 router.route('/:id')

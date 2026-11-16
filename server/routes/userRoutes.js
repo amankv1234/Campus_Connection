@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { getUsers, getUserById, updateUserProfile, uploadProfilePic, uploadResume, connectUser, disconnectUser } = require('../controllers/userController');
+const { getUsers, getUserById, updateUserProfile, uploadProfilePic, uploadResume, connectUser, disconnectUser, getLeaderboard } = require('../controllers/userController');
 const { protect } = require('../middleware/authMiddleware');
 
 const upload = multer({ 
@@ -9,6 +9,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB safe limit
 });
 
+router.get('/leaderboard', protect, getLeaderboard);
 router.get('/', protect, getUsers);
 router.get('/:id', protect, getUserById);
 router.put('/profile', protect, updateUserProfile);

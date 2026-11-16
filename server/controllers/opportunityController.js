@@ -1,4 +1,5 @@
 const Opportunity = require('../models/Opportunity');
+const { clearCacheByPattern } = require('../middleware/cacheMiddleware');
 
 // @desc    Create an opportunity
 // @route   POST /api/opportunities
@@ -24,6 +25,9 @@ const createOpportunity = async (req, res) => {
       image: imageUrl,
       postedBy: req.user.id
     });
+
+    // Invalidate Redis Cache for opportunities feed
+    await clearCacheByPattern('opportunities:*');
 
     res.status(201).json(newOpp);
   } catch (error) {

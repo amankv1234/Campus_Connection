@@ -31,10 +31,10 @@ const Navbar = () => {
     if (user) {
       const fetchUnread = async () => {
         try {
-          const res = await axios.get(`${API_URL}/api/notifications`, {
+          const res = await axios.get(`${API_URL}/api/notifications/unread-count`, {
             headers: { Authorization: `Bearer ${user.token}` }
           });
-          setUnreadCount(res.data.filter(n => !n.read).length);
+          setUnreadCount(typeof res.data.count === 'number' ? res.data.count : 0);
         } catch (error) {
           console.error(error);
         }

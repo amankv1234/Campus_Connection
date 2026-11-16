@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { createOpportunity, getOpportunities, bookmarkOpportunity } = require('../controllers/opportunityController');
 const { protect } = require('../middleware/authMiddleware');
+const { cacheMiddleware } = require('../middleware/cacheMiddleware');
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
@@ -11,7 +12,7 @@ const upload = multer({
 
 router.route('/')
   .post(protect, upload.single('image'), createOpportunity)
-  .get(protect, getOpportunities);
+  .get(protect, cacheMiddleware('opportunities', 300), getOpportunities);
 
 router.put('/:id/bookmark', protect, bookmarkOpportunity);
 

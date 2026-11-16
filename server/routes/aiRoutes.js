@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
+const { aiLimiter } = require('../middleware/rateLimiter');
+const { redis, isConnected } = require('../config/redis');
 
 // Comprehensive Career Knowledge Base
 function getCareerAdvice(question) {
@@ -99,15 +101,31 @@ function getCareerAdvice(question) {
     `*Have a specific follow-up question or need a daily study timetable? Feel free to ask!*`;
 }
 
-// @desc    Ask AI Career Assistant (Powered by Gemini + Smart Knowledge Engine)
+// @desc    Ask AI Career Assistant (Powered by Gemini + Smart Knowledge Engine + Redis Cache)
 // @route   POST /api/ai/ask
 // @access  Private
-router.post('/ask', protect, async (req, res) => {
+router.post('/ask', protect, aiLimiter, async (req, res) => {
   try {
     const { question, history } = req.body;
     
     if (!question || !question.trim()) {
       return res.status(400).json({ message: 'Question is required' });
+    }
+
+    const cleanQuestion = question.trim().toLowerCase();
+    const cacheKey = `ai:answer:${Buffer.from(cleanQuestion).toString('base64').slice(0, 40)}`;
+
+    // Check Redis Cache for identical questions (saves API calls & latency)
+    if (isConnected()) {
+      try {
+        const cachedAnswer = await redis.get(cacheKey);
+        if (cachedAnswer) {
+          res.setHeader('X-Cache', 'HIT');
+          return res.status(200).json({ answer: cachedAnswer });
+        }
+      } catch (cacheErr) {
+        console.warn('[Redis AI Cache] Get error:', cacheErr.message);
+      }
     }
 
     const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -142,7 +160,14 @@ router.post('/ask', protect, async (req, res) => {
         const data = await response.json();
 
         if (response.ok && data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-          return res.status(200).json({ answer: data.candidates[0].content.parts[0].text });
+          const geminiAnswer = data.candidates[0].content.parts[0].text;
+
+          // Cache in Redis for 24 hours
+          if (isConnected()) {
+            redis.set(cacheKey, geminiAnswer, 'EX', 86400).catch(() => {});
+          }
+
+          return res.status(200).json({ answer: geminiAnswer });
         }
       } catch (geminiError) {
         console.error('Gemini API fetch error:', geminiError.message);
@@ -151,6 +176,12 @@ router.post('/ask', protect, async (req, res) => {
 
     // Immediate, rich and accurate answer (Zero lag, zero failure)
     const answer = getCareerAdvice(question);
+
+    // Cache in Redis for 24 hours
+    if (isConnected()) {
+      redis.set(cacheKey, answer, 'EX', 86400).catch(() => {});
+    }
+
     res.status(200).json({ answer });
 
   } catch (error) {
