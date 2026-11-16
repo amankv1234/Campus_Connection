@@ -24,17 +24,18 @@ This guide walks you through deploying the **frontend** on **Vercel** and the **
 6. **Start Command**: `npm start` (runs `node server.js`).
 7. **Port**: Render assigns a port via the `PORT` env var; the code already reads `process.env.PORT || 5000`.
 
-### 2.2 Environment Variables
-Add the following in the *Environment* section:
+### 2.2 Environment Variables (Render)
+Add the following in the **Render Dashboard > Environment** section:
 - `NODE_ENV=production`
 - `PORT=5000` (Render overrides this automatically, but setting a default keeps local runs consistent.)
 - `MONGO_URI=<your‑mongo‑connection‑string>`
 - `JWT_SECRET=<your‑jwt‑secret>`
-- `REDIS_URL=<your‑redis‑connection‑url>` *(Optional - Upstash Redis or Render Redis for ultra-fast Leaderboard, Caching, Rate-Limiting & Online Status. If omitted, app smoothly runs on MongoDB fallback)*
-- Any other custom vars referenced in `server/.env.example`.
+- `REDIS_URL=<your‑redis‑connection‑url>` *(e.g. from Upstash Redis or Render Redis: `rediss://default:...@...upstash.io:6379`. If not provided, fallback to MongoDB activates automatically)*
+- `GOOGLE_CLIENT_ID=438651872918-qh2oi29g0m5i2o5fr09vm1do547ff6qh.apps.googleusercontent.com`
+- `GEMINI_API_KEY=<your‑gemini‑api‑key>`
 
 ### 2.3 Deploy
-Click **Create Web Service**. Render will install dependencies, build, and start the server. After the build finishes you will receive a public URL, e.g.:
+Click **Create Web Service** (or **Manual Deploy > Trigger Deploy**). Render will install dependencies, build, and start the server. After the build finishes you will receive a public URL, e.g.:
 ```
 https://campus-connection-backend.onrender.com
 ```
@@ -44,16 +45,26 @@ Copy this URL – you will need it for the frontend.
 
 ## 3. Frontend Deployment on Vercel
 ### 3.1 Add the Project
-1. Log in to Vercel and click **New Project**.
+1. Log in to Vercel and click **New Project** (or open existing project settings).
 2. Import the same GitHub repository.
 3. Vercel will automatically detect the `vercel.json` at the repo root.
 4. Ensure the **Root Directory** is left blank (the repo root). The `vercel.json` tells Vercel to build the `client` folder.
 
-### 3.2 Environment Variables
-Add a single variable:
-- `API_URL=<backend‑url-from‑Render>`
-  (e.g., `https://campus-connection-backend.onrender.com`).
-  Vite injects this at build time via `vite.config.js` — no `VITE_` prefix needed.
+### 3.2 Environment Variables (Vercel)
+Go to **Project Settings > Environment Variables** and add:
+1. `API_URL=<backend‑url-from‑Render>`  
+   *(e.g., `https://campus-connection-backend.onrender.com` — no trailing slash)*
+2. `GOOGLE_CLIENT_ID=438651872918-qh2oi29g0m5i2o5fr09vm1do547ff6qh.apps.googleusercontent.com`  
+   *(or `VITE_GOOGLE_CLIENT_ID` — both work seamlessly)*
+
+### 3.3 Google Cloud Console OAuth Authorized Origins (Crucial Step!) ⚠️
+After Vercel deploys, copy your live frontend URL (e.g., `https://campus-connection.vercel.app`):
+1. Go to [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials).
+2. Edit your OAuth 2.0 Web Client ID.
+3. Under **"Authorized JavaScript origins"**, add:
+   - `https://campus-connection.vercel.app` *(without trailing `/`)*
+   - `https://your-custom-domain.com` *(if any)*
+4. Click **Save**. (Wait 2-3 minutes for Google's edge cache to refresh).
 
 ### 3.3 Deploy
 Click **Deploy**. Vercel will run:
